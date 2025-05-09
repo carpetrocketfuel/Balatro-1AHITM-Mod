@@ -483,51 +483,75 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
---fiab
+--bms
 SMODS.Atlas{
-  key = 'fiab',
-  path = 'fiab.png',
+  key = 'bms',
+  path = 'bms.png',
   px = 71,
   py = 95,
 }
 SMODS.Joker{
-  key = 'fiab',
+  key = 'bms',
   loc_txt = {
-    name = 'Caged Fish',
+    name = 'House Carpet Rocketfuel',
     text = {
-      '{C:green}#1# in #2#{} chance for cards',
-      'to be drawn {C:attention}face down{}',
-      'gain {C:money}4${} for every',
-      '{C:attention}face down card{} played'
+      'If {C:attention}Boss Blind{} is defeated',
+      'on {C:attention}Third{} hand of round',
+      'using a {C:attention}Full House{}',
+      'create a {C:dark_edition}Negative Rocket{}'
     }
   },
-  atlas = 'fiab',
+  atlas = 'bms',
   config = {
     extra = {
-      var1= 1,
-      var2= 4
+      var1 = 1,
+      var2 = 4
     }
   },
 
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1,
-          card.ability.extra.var2
-        }
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1,
+        card.ability.extra.var2
       }
-    end,
+    }
+  end,
+
   pos = {x = 0, y = 0},
-  rarity = 2,
-  cost = 4,
+  rarity = 3,
+  cost = 8,
   unlocked = true,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
 
+  calculate = function(self, card, context)
+  -- Detect a Full House being played
+  if not context.blueprint and context.before and context.main_eval then
+    card.ability.housecheck = next(context.poker_hands['Full House']) and true or false
+  end
+
+  -- Trigger reward at end of round if boss blind and housecheck is true
+  if context.end_of_round and context.main_eval and G.GAME.blind.boss and not context.blueprint and card.ability.housecheck and G.GAME.current_round.hands_played == 3 then
+    local new_card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_rocket')
+    new_card:set_edition('e_negative', true, false)
+    new_card:add_to_deck()
+    G.jokers:emplace(new_card)
+
+    -- Optional: clear the flag after use
+    card.ability.housecheck = false
+
+    return {
+      message = 'Check It Out!',
+      colour = G.C.MULT,
+      card = card
+    }
+  end
+end
+
 }
+
 
 
 --igor
@@ -607,10 +631,10 @@ SMODS.Joker{
   unlocked = true,
   cost = 4,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
   calculate = function(self, card, context)
-  if context.end_of_round and context.main_eval and G.GAME.blind.boss and not context.blueprint then
+  if context.end_of_round and context.main_eval and G.GAME.blind.boss then
       add_tags("tag_voucher")
       return {
         message = 'Dopamin!',
