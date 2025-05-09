@@ -8,7 +8,7 @@
 ------------MOD CODE ------------------
 
 
-
+--odd todd ass
 
 ---Destroys the provided Joker
 ---@param card table
