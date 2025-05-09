@@ -483,6 +483,53 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
+--fiab
+SMODS.Atlas{
+  key = 'fiab',
+  path = 'fiab.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'fiab',
+  loc_txt = {
+    name = 'Caged Fish',
+    text = {
+      '{C:green}#1# in #2#{} chance for cards',
+      'to be drawn {C:attention}face down{}',
+      'gain {C:money}4${} for every',
+      '{C:attention}face down card{} played'
+    }
+  },
+  atlas = 'fiab',
+  config = {
+    extra = {
+      var1= 1,
+      var2= 4
+    }
+  },
+
+
+
+    loc_vars = function(self, info_queue, card)
+      return {
+        vars = {
+          card.ability.extra.var1,
+          card.ability.extra.var2
+        }
+      }
+    end,
+  pos = {x = 0, y = 0},
+  rarity = 2,
+  cost = 4,
+  unlocked = true,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+
+}
+
+
 --igor
 SMODS.Atlas{
   key = 'igor',
