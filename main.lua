@@ -549,7 +549,6 @@ SMODS.Joker{
     }
   end
 end
-
 }
 
 
@@ -643,6 +642,49 @@ SMODS.Joker{
       }
     end
   end 
+}
+
+--d4c
+SMODS.Atlas{
+  key = 'klepto',
+  path = 'kleptomancy.png',
+  px = 568,
+  py = 760,
+}
+SMODS.Joker{
+  key = 'klepto',
+  loc_txt = {
+    name = 'Kleptomancy',
+    text = {
+      'Allows you take',
+      '{C:attention}one {}additional card',
+      'in every {C:attention}Booster Pack{}'
+
+    }
+  },
+  atlas = 'klepto',
+  config = {
+    extra = {
+      var1= 1
+    }
+  },
+
+
+
+    loc_vars = function(self, info_queue, card)
+      return {
+        vars = {
+          card.ability.extra.var1
+        }
+      }
+    end,
+  pos = {x = 0, y = 0},
+  rarity = 3,
+  unlocked = true,
+  cost = 10,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
 }
 
 --filthy
