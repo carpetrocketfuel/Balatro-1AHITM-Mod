@@ -1038,6 +1038,50 @@ SMODS.Joker{
 
 }
 
+--curveball
+SMODS.Atlas{
+  key = 'curveball',
+  path = 'curveball.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'curveball',
+  loc_txt = {
+    name = 'Curveball',
+    text = {
+      'Every Hand is',
+      'considered a {C:attention}Flush{}'
+    }
+  },
+  atlas = 'curveball',
+  config = {
+    extra = {
+      var1 = 1,
+      var2 = 7,
+      mult = 30
+    }
+  },
+
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1,
+        card.ability.extra.var2,
+        card.ability.extra.mult
+      }
+    }
+  end,
+
+  pos = {x = 0, y = 0},
+  rarity = 1,
+  unlocked = true,
+  cost = 8,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+
+}
 
 --King Crimson
 SMODS.Atlas{
