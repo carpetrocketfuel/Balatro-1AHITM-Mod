@@ -644,7 +644,7 @@ SMODS.Joker{
   end 
 }
 
---d4c
+--klepto
 SMODS.Atlas{
   key = 'klepto',
   path = 'kleptomancy.png',
@@ -930,14 +930,14 @@ SMODS.Joker{
   config = {
     extra = {
       var1 = '1',
-      var2 = '1'
+      var2 = 0 -- this stores current multiplier
     }
   },
   loc_vars = function(self, info_queue, card)
     return {
       vars = {
         card.ability.extra.var1,
-        card.ability.extra.var2
+        tostring(card.ability.extra.var2)
       }
     }
   end,
@@ -948,7 +948,31 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+
+
+  update = function(self, card)
+    if G.jokers and G.jokers.cards then
+      local mult = 0
+      for _, other in ipairs(G.jokers.cards) do
+        if card ~= other and card.T.x + card.T.w / 2 < other.T.x + other.T.w / 2 then
+          mult = mult + 1
+        end
+      end
+      card.ability.extra.var2 = mult
+    end
+  end,
+
+
+  calculate = function(self, card, context)
+    if context.joker_main and context.cardarea == G.jokers then
+      return {
+        x_mult = card.ability.extra.var2
+      }
+    end
+  end
 }
+
+
 
 
 --kanye west
