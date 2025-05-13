@@ -398,13 +398,14 @@ SMODS.Joker{
   end  
 }
 
---adachi
+-- Adachi Joker definition
 SMODS.Atlas{
   key = 'adachi',
   path = 'adachi.png',
   px = 71,
   py = 95,
 }
+
 SMODS.Joker{
   key = 'adachi',
   loc_txt = {
@@ -413,25 +414,16 @@ SMODS.Joker{
       '{C:attention}+5 Joker Slots{}',
       'Removes all other {C:rare}Rare{}',
       'Jokers from appearing',
-      '{C:inactive}(Including Wraith and Rare tags{C:inactive})'
+      '{C:inactive}(Including Wraith and Rare tags{})'
     }
   },
   atlas = 'adachi',
   config = {
     extra = {
-      var1= 1
+      slots = 5
     }
   },
 
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
   pos = {x = 0, y = 0},
   rarity = 3,
   unlocked = true,
@@ -439,7 +431,24 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+
+  add_to_deck = function(self, card, from_debuff)
+    G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
+  end,
+
+  remove_from_deck = function(self, card, from_debuff)
+    G.jokers.config.card_limit = G.jokers.config.card_limit - card.ability.extra.slots
+  end,
+
+  calculate = function(self, card)
+    for k, v in pairs(G.P_CENTERS) do
+      if v.set == 'Joker' and (v.rarity == 3 or (v.tags and v.tags.Rare)) and v.key ~= self.key then
+        v.banned = true
+      end
+    end
+  end
 }
+
 
 
 --d4c
