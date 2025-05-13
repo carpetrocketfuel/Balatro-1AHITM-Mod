@@ -345,60 +345,67 @@ SMODS.Joker{
   loc_txt = {
     name = 'Concentrate',
     text = {
-      'this joker gains',
-      '{C:chips}+#1# {}chips if played hand',
-      'conatins a {C:attention}Three of a Kind{}',
-      '{C:inactive}(Currently {C:chips}+#2# {}{C:inactive}chips)'
+      'This Joker gains',
+      '{C:chips}+#1#{} chips for every',
+      'scored {C:hearts}Heart{} card',
+      '{C:inactive}(Currently {C:chips}+#2#{}{C:inactive})'
     }
   },
   atlas = 'concentrate',
   config = {
     extra = {
-      var1= 11,
-      var2= 0
+      var1 = 7, -- Chips gained per Heart card
+      var2 = 0   -- Total accumulated chips
     }
   },
 
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1,
-          card.ability.extra.var2
-        }
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1,
+        card.ability.extra.var2
       }
-    end,
+    }
+  end,
+
   pos = {x = 0, y = 0},
-  rarity = 1,
+  rarity = 3,
   cost = 9,
   unlocked = true,
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+
   calculate = function(self, card, context)
-    -- Upgrade var2 if Three of a Kind is played
-    if not context.blueprint and context.before and context.main_eval then
-      if next(context.poker_hands['Three of a Kind']) then
+    -- Trigger chip gain based on Hearts scored
+        if context.individual and context.cardarea == G.play then
+    if context.individual and context.other_card then
+      local c = context.other_card
+      if c:is_suit("Hearts") then
         card.ability.extra.var2 = card.ability.extra.var2 + card.ability.extra.var1
         return {
-          message = 'Upgrade!',
-          colour = G.C.CHIPS
+
+          message = 'Let Me Dance!',
+          colour = G.C.CHIPS,
+          card = card
         }
       end
     end
-  
-    -- Apply chip value during scoring
+  end 
+
+    -- Apply the total bonus during scoring
     if context.joker_main then
       return {
         chips = card.ability.extra.var2,
         card = card
       }
     end
-  end  
+
+  end
 }
 
--- Adachi Joker definition
+
+-- Adachi 
 SMODS.Atlas{
   key = 'adachi',
   path = 'adachi.png',
@@ -411,7 +418,7 @@ SMODS.Joker{
   loc_txt = {
     name = 'Toru Adachi',
     text = {
-      '{C:attention}+5 Joker Slots{}',
+      '{C:attention}+4 Joker Slots{}',
       'Removes all other {C:rare}Rare{}',
       'Jokers from appearing',
       '{C:inactive}(Including Wraith and Rare tags{})'
@@ -420,7 +427,7 @@ SMODS.Joker{
   atlas = 'adachi',
   config = {
     extra = {
-      slots = 5
+      slots = 4
     }
   },
 
@@ -778,6 +785,7 @@ SMODS.Joker{
   blueprint_compat = false,
   eternal_compat = true,
   calculate = function(self, card, context)
+
     if context.cardarea == G.play and context.repetition then
       local card_id = context.other_card:get_id()
       if context.other_card:is_suit("Spades") then
@@ -836,6 +844,7 @@ SMODS.Joker{
       if c:is_suit("Spades") and c:get_id() == 8 then
         return {
           x_mult = card.ability.extra.var1
+
         }
       end
     end
