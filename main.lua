@@ -1212,6 +1212,52 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
+--Hisoka
+SMODS.Atlas{
+  key = 'hisoka',
+  path = 'Hisoka.png',
+  px = 499,
+  py = 665,
+}
+
+SMODS.Joker{
+  key = 'hisoka',
+  loc_txt = {
+    name = 'Hisoka',
+    text = {
+      'Every played {C:attention}card{}',
+      'permanently gains',
+      '{X:mult,C:white}X#1#{} Mult when scoring'
+    }
+  },
+
+  atlas = 'hisoka',
+  config = {
+    extra = {
+      var1= 0.1
+    }
+  },
+
+
+
+    loc_vars = function(self, info_queue, card)
+      return {
+        vars = {
+          card.ability.extra.var1
+        }
+      }
+    end,
+  pos = {x = 0, y = 0},
+
+  soul_pos = { x = 1, y = 0 },
+  rarity = 4,
+  unlocked = true,
+  cost = 20,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+}
+
 --payaso
 SMODS.Atlas{
   key = 'payaso',
