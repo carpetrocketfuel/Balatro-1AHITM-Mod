@@ -80,8 +80,6 @@ end
 
 
 
-
-
 SMODS.Atlas{
   key = 'template',
   path = 'template.png',
@@ -217,6 +215,7 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+
 }
 
 --kiss
@@ -1174,7 +1173,6 @@ SMODS.Atlas{
   px = 499,
   py = 665,
 }
-
 SMODS.Joker{
   key = 'crimson',
   loc_txt = {
@@ -1209,7 +1207,8 @@ SMODS.Joker{
   cost = 20,
   discovered = true,
   blueprint_compat = false,
-  eternal_compat = true,
+  eternal_compat = true
+
 }
 
 --Hisoka
