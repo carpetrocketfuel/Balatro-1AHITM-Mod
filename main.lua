@@ -194,7 +194,7 @@ SMODS.Joker{
       'When sold creates a {C:attention}Joker{}',
       'of the rarity of the last',
       'sold {C:attention}Joker{} before Squirrel',
-      '{C:inactive}(Currently:{} {C:common}#1#{}{C:inactive})'
+      '{C:inactive}(Currently:{} {C:attention}#1#{}{C:inactive})'
     }
   },
   atlas = 'squirrel',
@@ -215,7 +215,47 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+    calculate = function(self, card, context)
+          if not context.blueprint and context.selling_card and context.card ~= card and 
+    context.card.ability.set == 'Joker' then
 
+          local joker = context.card
+          local rarity = joker.config.center.rarity
+    if rarity == 1 then
+      card.ability.extra.rarity = 'Common'
+    end
+        if rarity == 2 then
+      card.ability.extra.rarity = 'Uncommon'
+    end
+        if rarity == 3 then
+      card.ability.extra.rarity = 'Rare'
+    end
+        if rarity == 4 then
+      card.ability.extra.rarity = 'Legendary'
+    end
+
+    end
+
+    if not context.blueprint and context.selling_card and context.card == card and 
+    context.card.ability.set == 'Joker' then
+      local new_card = nil
+          if card.ability.extra.rarity == 'Common' then
+          new_card = create_card('Joker', G.joker, nil, 0.5 , nil, nil, nil)
+    end
+        if card.ability.extra.rarity == 'Uncommon' then
+          new_card = create_card('Joker', G.joker, nil, 0.8 , nil, nil, nil)
+    end
+        if card.ability.extra.rarity == 'Rare' then
+          new_card = create_card('Joker', G.joker, nil, 1 , nil, nil, nil)
+    end
+        if card.ability.extra.rarity == 'Legendary' then
+          new_card = create_card('Joker', G.joker, true, nil , nil, nil, nil)
+    end
+        --common = 0.5 uncommon = 0.8 rare = 1  legendary = nil
+        new_card:add_to_deck()
+        G.jokers:emplace(new_card)
+      end
+  end
 }
 
 --kiss
