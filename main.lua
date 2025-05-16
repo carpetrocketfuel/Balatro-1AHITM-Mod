@@ -140,6 +140,7 @@ SMODS.Atlas{
   px = 71,
   py = 95,
 }
+
 SMODS.Joker{
   key = 'fiab',
   loc_txt = {
