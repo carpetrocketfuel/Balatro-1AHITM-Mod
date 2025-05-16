@@ -64,18 +64,6 @@ function add_tags(tag, event, silent)
   end
 end
 
---- Gets a random consumable type
---- @param seed string
---- @return SMODS.ConsumableType
-function poll_consumable_type(seed)
-  local types = {}
-
-  for _, v in pairs(SMODS.ConsumableTypes) do
-    types[#types + 1] = v
-  end
-
-  return pseudorandom_element(types, pseudoseed(seed))
-end
 
 
 
