@@ -1341,6 +1341,50 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
+--taitai
+SMODS.Atlas{
+  key = 'taitai',
+  path = 'taitai.png',
+  px = 499,
+  py = 665,
+}
+
+SMODS.Joker{
+  key = 'taitai',
+  loc_txt = {
+    name = 'Taitai',
+    text = {
+      '???'
+    }
+  },
+
+  atlas = 'taitai',
+  config = {
+    extra = {
+      var1= 1
+    }
+  },
+
+
+
+    loc_vars = function(self, info_queue, card)
+      return {
+        vars = {
+          card.ability.extra.var1
+        }
+      }
+    end,
+  pos = {x = 0, y = 0},
+
+  soul_pos = { x = 1, y = 0 },
+  rarity = 4,
+  unlocked = true,
+  cost = 20,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+}
+
 --Schrepper
 SMODS.Atlas{
   key = 'schrepper',
