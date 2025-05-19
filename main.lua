@@ -1456,7 +1456,7 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
---payaso
+-- payaso
 SMODS.Atlas{
   key = 'payaso',
   path = 'payaso.png',
@@ -1471,38 +1471,51 @@ SMODS.Joker{
     text = {
       'Gain {C:attention}+1{} hand size',
       'every {C:attention}37{} played cards.',
+      '{C:inactive}(Next in {C:attention}#1#{C:inactive} cards)',
+      '{C:inactive}(Total given: {C:attention}+#2#{} hand size)'
     }
   },
 
   atlas = 'payaso',
+
   config = {
     extra = {
-      var1 = 1,
       cards_played_count = 0,
       hand_size_increase = 1
     }
   },
 
-  calculate = function(self, card, context)
+  loc_vars = function(self, info_queue, card)
+    local count = card.ability.extra.cards_played_count or 0
+    local increase = card.ability.extra.hand_size_increase or 1
+
+    local next_in = 37 - (count % 37)
+    if next_in == 37 then next_in = 0 end
+
+    local total_added = math.floor(count / 37) * increase
+
+    return {
+      vars = {
+        next_in,
+        total_added
+      }
+    }
+  end,
+
+  trigger_effect = function(self, card, context)
     if not card.debuff and context.cardarea == G.play then
-      self.config.extra.cards_played_count = self.config.extra.cards_played_count + 1
-      if self.config.extra.cards_played_count % 37 == 0 then
-        local player = G.E_Manager and G.E_Manager.getPlayer() or nil
-        if player then
-          player.masterHandSize = (player.masterHandSize or 0) + self.config.extra.hand_size_increase
-          G.hand:change_size(self.config.extra.hand_size_increase)
-          return {
-            message = 'Still Good!',
-            colour = G.C.CHIPS,
-            card = card
-          }
-        else
-          return {
-            message = 'No player found!',
-            colour = G.C.WARNING,
-            card = card
-          }
-        end
+      card.ability.extra.cards_played_count = (card.ability.extra.cards_played_count or 0) + 1
+
+      if card.ability.extra.cards_played_count % 37 == 0 then
+        local increase = card.ability.extra.hand_size_increase or 1
+
+        G.hand:change_size(increase)
+
+        return {
+          message = "Hand size increased!",
+          colour = G.C.CHIPS,
+          card = card
+        }
       end
     end
   end,
@@ -1517,49 +1530,7 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
---taitai
-SMODS.Atlas{
-  key = 'taitai',
-  path = 'taitai.png',
-  px = 499,
-  py = 665,
-}
 
-SMODS.Joker{
-  key = 'taitai',
-  loc_txt = {
-    name = 'Taitai',
-    text = {
-      '???'
-    }
-  },
-
-  atlas = 'taitai',
-  config = {
-    extra = {
-      var1= 1
-    }
-  },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-
-  soul_pos = { x = 1, y = 0 },
-  rarity = 4,
-  unlocked = true,
-  cost = 20,
-  discovered = true,
-  blueprint_compat = false,
-  eternal_compat = true,
-}
 
 --Schrepper
 SMODS.Atlas{
