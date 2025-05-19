@@ -1298,28 +1298,45 @@ SMODS.Joker{
   loc_txt = {
     name = 'Payaso',
     text = {
-      '???'
+      'Gain {C:attention}+1{} hand size',
+      'every {C:attention}37{} played cards.',
     }
   },
 
   atlas = 'payaso',
   config = {
     extra = {
-      var1= 1
+      var1 = 1,
+      cards_played_count = 0,
+      hand_size_increase = 1
     }
   },
 
+  calculate = function(self, card, context)
+    if not card.debuff and context.cardarea == G.play then
+      self.config.extra.cards_played_count = self.config.extra.cards_played_count + 1
+      if self.config.extra.cards_played_count % 37 == 0 then
+        local player = G.E_Manager and G.E_Manager.getPlayer() or nil
+        if player then
+          player.masterHandSize = (player.masterHandSize or 0) + self.config.extra.hand_size_increase
+          G.hand:change_size(self.config.extra.hand_size_increase)
+          return {
+            message = 'Still Good!',
+            colour = G.C.CHIPS,
+            card = card
+          }
+        else
+          return {
+            message = 'No player found!',
+            colour = G.C.WARNING,
+            card = card
+          }
+        end
+      end
+    end
+  end,
 
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
   pos = {x = 0, y = 0},
-
   soul_pos = { x = 1, y = 0 },
   rarity = 4,
   unlocked = true,
