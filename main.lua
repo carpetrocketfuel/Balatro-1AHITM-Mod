@@ -1465,6 +1465,14 @@ SMODS.Atlas{
   py = 665,
 }
 
+-- payaso
+SMODS.Atlas{
+  key = 'payaso',
+  path = 'payaso.png',
+  px = 499,
+  py = 665,
+}
+
 SMODS.Joker{
   key = 'payaso',
   loc_txt = {
@@ -1472,8 +1480,6 @@ SMODS.Joker{
     text = {
       'Gain {C:attention}+1{} hand size',
       'every {C:attention}37{} played cards.',
-      '{C:inactive}(Next in {C:attention}#1#{C:inactive} cards)',
-      '{C:inactive}(Total given: {C:attention}+#2#{} hand size)'
     }
   },
 
@@ -1484,31 +1490,14 @@ SMODS.Joker{
       cards_played_count = 0,
       hand_size_increase = 1
     }
-  },
+  }, -- ← THIS COMMA WAS MISSING
 
-  loc_vars = function(self, info_queue, card)
-    local count = card.ability.extra.cards_played_count or 0
-    local increase = card.ability.extra.hand_size_increase or 1
-
-    local next_in = 37 - (count % 37)
-    if next_in == 37 then next_in = 0 end
-
-    local total_added = math.floor(count / 37) * increase
-
-    return {
-      vars = {
-        next_in,
-        total_added
-      }
-    }
-  end,
-
-  trigger_effect = function(self, card, context)
+  calculate = function(self, card, context)
     if not card.debuff and context.cardarea == G.play then
-      card.ability.extra.cards_played_count = (card.ability.extra.cards_played_count or 0) + 1
+      self.config.extra.cards_played_count = (self.config.extra.cards_played_count or 0) + 1
 
-      if card.ability.extra.cards_played_count % 37 == 0 then
-        local increase = card.ability.extra.hand_size_increase or 1
+      if self.config.extra.cards_played_count % 37 == 0 then
+        local increase = self.config.extra.hand_size_increase or 1
 
         G.hand:change_size(increase)
 
@@ -1531,6 +1520,15 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
+
+
+--taitai
+SMODS.Atlas{
+  key = 'taitai',
+  path = 'taitai.png',
+  px = 499,
+  py = 665,
+}
 
 
 --Schrepper
