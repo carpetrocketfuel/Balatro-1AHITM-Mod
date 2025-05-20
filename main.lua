@@ -1464,33 +1464,52 @@ SMODS.Atlas{
   py = 665,
 }
 
+-- payaso
+SMODS.Atlas{
+  key = 'payaso',
+  path = 'payaso.png',
+  px = 499,
+  py = 665,
+}
+
 SMODS.Joker{
   key = 'payaso',
   loc_txt = {
     name = 'Payaso',
     text = {
-      '???'
+      'Gain {C:attention}+1{} hand size',
+      'every {C:attention}37{} played cards.',
     }
   },
 
   atlas = 'payaso',
+
   config = {
     extra = {
-      var1= 1
+      cards_played_count = 0,
+      hand_size_increase = 1
     }
-  },
+  }, -- ← THIS COMMA WAS MISSING
 
+  calculate = function(self, card, context)
+    if not card.debuff and context.cardarea == G.play then
+      self.config.extra.cards_played_count = (self.config.extra.cards_played_count or 0) + 1
 
+      if self.config.extra.cards_played_count % 37 == 0 then
+        local increase = self.config.extra.hand_size_increase or 1
 
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
+        G.hand:change_size(increase)
+
+        return {
+          message = "Hand size increased!",
+          colour = G.C.CHIPS,
+          card = card
         }
-      }
-    end,
-  pos = {x = 0, y = 0},
+      end
+    end
+  end,
 
+  pos = {x = 0, y = 0},
   soul_pos = { x = 1, y = 0 },
   rarity = 4,
   unlocked = true,
@@ -1499,6 +1518,8 @@ SMODS.Joker{
   blueprint_compat = false,
   eternal_compat = true,
 }
+
+
 
 --taitai
 SMODS.Atlas{
