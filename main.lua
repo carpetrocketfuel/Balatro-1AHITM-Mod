@@ -498,14 +498,16 @@ SMODS.Joker{
   loc_txt = {
     name = 'Dirty Deeds Done Dirt Cheap',
     text = {
-      '???'
-
+      '{C:green}#1# in #2#{} chance for the {C:attention}rightmost{}',
+      '{C:attention}played card{} to gain a {C:dark_edition}Negative Edition{}',
+      '{C:green}#1# in #2#{} {C:inactive}chance to be copyrighted{}',
+      '{C:inactive}at the end of round{}'
     }
   },
   atlas = 'd4c',
   config = {
     extra = {
-      var1= 1
+      var2= 7
     }
   },
 
@@ -514,17 +516,55 @@ SMODS.Joker{
     loc_vars = function(self, info_queue, card)
       return {
         vars = {
-          card.ability.extra.var1
+          G.GAME.probabilities.normal,
+          card.ability.extra.var2
         }
       }
     end,
   pos = {x = 0, y = 0},
-  rarity = 2,
+  rarity = 3,
   unlocked = true,
   cost = 7,
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+  yes_pool_flag = 'ahitm_d4c_can_spawn',
+
+  calculate = function(self, card, context)
+  if not context.blueprint  then
+    local odds = G.GAME.probabilities.normal / (card.ability.extra.var2 or 7)
+    local c = context.other_card
+      if context.individual and context.cardarea == G.play then
+      if context.individual and context.other_card then
+      local c = context.other_card
+        if c == context.scoring_hand[#context.scoring_hand] then
+          if pseudorandom("d4c") < odds then
+        c:set_edition('e_negative', true)
+          end 
+        end
+      end
+    end
+       if context.end_of_round and context.main_eval then
+        if pseudorandom("d4c") < odds then
+         destroy_joker(card, function()
+            G.GAME.pool_flags.ahitm_d4c_can_spawn = false
+            G.GAME.pool_flags.ahitm_filthy_can_spawn = true
+        end)
+                 return {
+          message = 'Copyrighted!',
+          colour = G.C.MULT,
+          card = card
+        }
+      else
+        return {
+          message = 'Safe!',
+          colour = G.C.CHIPS,
+          card = card
+        }
+      end 
+       end
+  end
+end
 }
 
 --bms
@@ -941,6 +981,7 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+  yes_pool_flag = 'ahitm_filthy_can_spawn',
 }
 
 --dwarven
@@ -1529,6 +1570,42 @@ SMODS.Atlas{
   px = 499,
   py = 665,
 }
+SMODS.Joker{
+  key = 'taitai',
+  loc_txt = {
+    name = 'Taitai',
+    text = {
+      '???'
+    }
+  },
+ 
+  atlas = 'taitai',
+  config = {
+    extra = {
+      var1= 1
+    }
+  },
+
+
+
+    loc_vars = function(self, info_queue, card)
+      return {
+        vars = {
+          card.ability.extra.var1
+        }
+      }
+    end,
+  pos = {x = 0, y = 0},
+
+  soul_pos = { x = 1, y = 0 },
+  rarity = 4,
+  unlocked = true,
+  cost = 20,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+}
+
 
 
 --Schrepper
