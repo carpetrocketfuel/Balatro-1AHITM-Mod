@@ -64,7 +64,16 @@ function add_tags(tag, event, silent)
   end
 end
 
+---@diagnostic disable: duplicate-set-field, lowercase-global
+-- Creates the flags
+local BackApply_to_run_ref = Back.apply_to_run
+function Back.apply_to_run(arg_56_0)
+  BackApply_to_run_ref(arg_56_0)
+  G.GAME.pool_flags.ahitm_filthy_can_spawn = false
 
+
+  G.P_CENTERS['j_diet_cola']['no_pool_flag'] = 'ghost_cola_can_spawn'
+end
 
 
 
