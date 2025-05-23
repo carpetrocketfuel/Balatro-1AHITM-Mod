@@ -268,9 +268,9 @@ SMODS.Joker{
   loc_txt = {
     name = 'KISS',
     text = {
-      'retrigger all {C:attention}played{} cards',
-      'with {C:attention}seals{} once and',
-      '{C:attention}purple seals{} twice'
+      'retrigger all {C:attention}played{}',
+      'cards with {C:attention}seals{}',
+      'an additional time'
     }
   },
   atlas = 'kiss',
@@ -318,6 +318,16 @@ SMODS.Joker{
   cost = 6,
   blueprint_compat = false,
   eternal_compat = true,
+ calculate = function(self, card, context)
+    if context.cardarea == G.play and context.repetition then
+      if context.other_card:get_seal() then
+        return {
+          repetitions = 1
+        }
+      end
+    end
+end
+
 }
 
 --artisan
@@ -963,8 +973,8 @@ SMODS.Joker{
     name = 'Filthy Acts at a Reasonable Price',
     text = {
       'Every {C:dark_edition}Negative{}',
-      'Card held in hand',
-      'gives 2X Mult'
+      'card {C:attention}held in hand{}',
+      'gives {X:mult,C:white}X#1#{} Mult'
 
     }
   },
