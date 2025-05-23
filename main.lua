@@ -542,7 +542,6 @@ SMODS.Joker{
   calculate = function(self, card, context)
   if not context.blueprint  then
     local odds = G.GAME.probabilities.normal / (card.ability.extra.var2 or 7)
-    local c = context.other_card
       if context.individual and context.cardarea == G.play then
       if context.individual and context.other_card then
       local c = context.other_card
@@ -963,14 +962,16 @@ SMODS.Joker{
   loc_txt = {
     name = 'Filthy Acts at a Reasonable Price',
     text = {
-      '???'
+      'Every {C:dark_edition}Negative{}',
+      'Card held in hand',
+      'gives 2X Mult'
 
     }
   },
   atlas = 'filthy',
   config = {
     extra = {
-      var1= 1
+      var1= 2
     }
   },
 
@@ -991,6 +992,18 @@ SMODS.Joker{
   blueprint_compat = false,
   eternal_compat = true,
   yes_pool_flag = 'ahitm_filthy_can_spawn',
+    calculate = function(self, card, context)
+    if context.individual and context.cardarea == G.hand then
+      if context.individual and context.other_card and not context.end_of_round then
+      local c = context.other_card
+      if c.edition and c.edition.negative then
+      return{
+        x_mult = card.ability.extra.var1
+      }
+    end
+      end
+    end
+  end
 }
 
 --dwarven
