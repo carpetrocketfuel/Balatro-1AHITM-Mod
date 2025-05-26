@@ -70,9 +70,7 @@ local BackApply_to_run_ref = Back.apply_to_run
 function Back.apply_to_run(arg_56_0)
   BackApply_to_run_ref(arg_56_0)
   G.GAME.pool_flags.ahitm_filthy_can_spawn = false
-
-
-  G.P_CENTERS['j_diet_cola']['no_pool_flag'] = 'ghost_cola_can_spawn'
+  G.GAME.pool_flags.ahitm_d4c_can_spawn = true
 end
 
 
@@ -238,13 +236,13 @@ SMODS.Joker{
     context.card.ability.set == 'Joker' then
       local new_card = nil
           if card.ability.extra.rarity == 'Common' then
-          new_card = create_card('Joker', G.joker, nil, 0.5 , nil, nil, nil)
+          new_card = create_card('Joker', G.joker, nil, 0.1 , nil, nil, nil)
     end
         if card.ability.extra.rarity == 'Uncommon' then
           new_card = create_card('Joker', G.joker, nil, 0.8 , nil, nil, nil)
     end
         if card.ability.extra.rarity == 'Rare' then
-          new_card = create_card('Joker', G.joker, nil, 1 , nil, nil, nil)
+          new_card = create_card('Joker', G.joker, nil, 80 , nil, nil, nil)
     end
         if card.ability.extra.rarity == 'Legendary' then
           new_card = create_card('Joker', G.joker, true, nil , nil, nil, nil)
@@ -1111,7 +1109,7 @@ SMODS.Joker{
   blueprint_compat = true,
   eternal_compat = true,
   calculate = function(self, card, context)
-    if context.individual and context.other_card then
+    if context.individual and context.other_card and context.cardarea == G.play and not context.end_of_round then
       local c = context.other_card
       if c:is_suit("Spades") and c:get_id() == 8 then
         return {
