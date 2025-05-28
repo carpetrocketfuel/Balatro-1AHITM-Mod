@@ -205,9 +205,9 @@ SMODS.Joker{
     }
   end,
   pos = {x = 0, y = 0},
-  rarity = 'Rare',
+  rarity = 2,
   unlocked = true,
-  cost = 8,
+  cost = 5,
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
@@ -392,14 +392,14 @@ SMODS.Joker{
     text = {
       'This Joker gains',
       '{C:chips}+#1#{} chips for every',
-      'scored {C:hearts}Heart{} card',
+      'scored card',
       '{C:inactive}(Currently {C:chips}+#2#{}{C:inactive})'
     }
   },
   atlas = 'concentrate',
   config = {
     extra = {
-      var1 = 7, -- Chips gained per Heart card
+      var1 = 5, -- Chips gained per Heart card
       var2 = 0   -- Total accumulated chips
     }
   },
@@ -426,15 +426,15 @@ SMODS.Joker{
         if context.individual and context.cardarea == G.play then
     if context.individual and context.other_card then
       local c = context.other_card
-      if c:is_suit("Hearts") then
+
         card.ability.extra.var2 = card.ability.extra.var2 + card.ability.extra.var1
         return {
 
-          message = 'Let Me Dance!',
+          message = '+5!',
           colour = G.C.CHIPS,
           card = card
         }
-      end
+
     end
   end 
 
@@ -957,6 +957,58 @@ SMODS.Joker{
   blueprint_compat = false,
   eternal_compat = true,
 }
+
+--Paint the Town
+SMODS.Atlas{
+  key = 'blue',
+  path = 'blue.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'blue',
+  loc_txt = {
+    name = 'Paint The Town',
+    text = {
+      'All played',
+      '{C:attention}face cards{}',
+      'gain a {C:dark_edition}Foil{}'
+
+    }
+  },
+  atlas = 'blue',
+  config = {
+    extra = {
+      var1= 1
+    }
+  },
+
+
+
+    loc_vars = function(self, info_queue, card)
+      return {
+        vars = {
+          card.ability.extra.var1
+        }
+      }
+    end,
+  pos = {x = 0, y = 0},
+  rarity = 2,
+  unlocked = true,
+  cost = 6,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+  calculate = function(self, card, context)
+  if context.individual and context.cardarea == G.play and context.other_card then
+    local c = context.other_card
+    if c:is_face() then
+      c:set_edition('e_foil', true)
+    end
+  end
+end
+}
+
 
 --filthy
 SMODS.Atlas{
