@@ -73,6 +73,85 @@ function Back.apply_to_run(arg_56_0)
   G.GAME.pool_flags.ahitm_d4c_can_spawn = true
 end
 
+--- Tries to spawn a card into either the Jokers or Consumeable card areas, ensuring
+--- that there is space available, using the respective buffer.
+--- DOES NOT TAKE INTO ACCOUNT ANY OTHER AREAS
+--- @param args CreateCard | { card: Card?, strip_edition: boolean? } | { instant: boolean?, func: function? } info:
+--- Either a table passed to SMODS.create_card, which will create a new card.
+--- Or a table with 'card', which will copy the passed card and remove its edition based on 'strip_edition'.
+--- @return boolean? spawned whether the card was able to spawn
+function try_spawn_card(args)
+  local is_joker = args.card and (args.card.ability.set == 'Joker') or
+      (args.set == 'Joker' or (args.key and args.key:sub(1, 1) == 'j'))
+  local area = args.area or (is_joker and G.jokers) or G.consumeables
+  local buffer = area == G.jokers and 'joker_buffer' or 'consumeable_buffer'
+
+  if #area.cards + G.GAME[buffer] < area.config.card_limit then
+    local added_card
+    local function add()
+      if args.card then
+        added_card = copy_card(args.card, nil, nil, nil, args.strip_edition)
+        added_card:add_to_deck()
+        area:emplace(added_card)
+      else
+        SMODS.add_card(args)
+      end
+    end
+
+    if args.instant then
+      add()
+    else
+      G.GAME[buffer] = G.GAME[buffer] + 1
+
+      G.E_MANAGER:add_event(Event {
+        func = function()
+          add()
+          G.GAME[buffer] = 0
+          return true
+        end
+      })
+    end
+
+    if args.func and type(args.func) == "function" then
+      args.func(added_card)
+    end
+
+    return true
+  end
+end
+
+---Gets a pseudorandom tag from the Tag pool
+---@param seed string
+---@param options table? a list of tags to choose from, defaults to normal pool
+---@return table
+function poll_tag(seed, options)
+  -- This part is basically a copy of how the base game does it
+  -- Look at get_next_tag_key in common_events.lua
+  local pool = options or get_current_pool('Tag')
+  local tag_key = pseudorandom_element(pool, pseudoseed(seed))
+
+  while tag_key == 'UNAVAILABLE' do
+    tag_key = pseudorandom_element(pool, pseudoseed(seed))
+  end
+
+  local tag = Tag(tag_key)
+
+  -- The way the hand for an orbital tag in the base game is selected could cause issues
+  -- with mods that modify blinds, so we randomly pick one from all visible hands
+  if tag_key == "tag_orbital" then
+    local available_hands = {}
+
+    for k, hand in pairs(G.GAME.hands) do
+      if hand.visible then
+        available_hands[#available_hands + 1] = k
+      end
+    end
+
+    tag.ability.orbital_hand = pseudorandom_element(available_hands, pseudoseed(seed .. '_orbital'))
+  end
+
+  return tag
+end
 
 
 SMODS.Atlas{
@@ -92,18 +171,17 @@ SMODS.Atlas{
 SMODS.Joker{
   key = 'monster',
   loc_txt = {
-    name = 'Monster Energy',
+    name = 'Monster',
     text = {
-      'Gain a random',
-      '{C:attention}skip tag{} at the',
-      'end of round',
-      'consumed in {C:attention}#1#{} rounds'
+      'Gain a random {C:attention}skip tag{}',
+      'at the end of round',
+      'consumed after {C:attention}#1#{} cards {C:mult}discarded{}'
     }
   },
   atlas = 'monster',
   config = {
     extra = {
-      var1= 4
+      var1= 14
     }
   },
 
@@ -123,7 +201,36 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+calculate = function(self, card, context)
+  -- Trigger reward at end of round
+  if context.end_of_round and context.main_eval then
+    add_tag(poll_tag("monster"))
+        return {
+        message = 'Tag!',
+        colour = G.C.RED,
+        card = card
+      }
+  end
+  
+  if not context.blueprint and context.discard then
+    card.ability.extra.var1 = card.ability.extra.var1 - 1
 
+    if card.ability.extra.var1 <= 0 then
+      destroy_joker(card)
+      return {
+        message = 'Consumed!',
+        colour = G.C.GREEN,
+        card = card
+      }
+    else
+      return {
+        message = 'Sip!',
+        colour = G.C.TAROT,
+        card = card
+      }
+    end
+  end
+end
 }
 
 --fiab
@@ -463,16 +570,15 @@ SMODS.Joker{
   loc_txt = {
     name = 'Toru Adachi',
     text = {
-      '{C:attention}+4 Joker Slots{}',
+      '{C:attention}+3 Joker Slots{}',
       'Removes all other {C:rare}Rare{}',
-      'Jokers from appearing',
-      '{C:inactive}(Including Wraith and Rare tags{})'
+      'Jokers from appearing'
     }
   },
   atlas = 'adachi',
   config = {
     extra = {
-      slots = 4
+      slots = 3
     }
   },
 
