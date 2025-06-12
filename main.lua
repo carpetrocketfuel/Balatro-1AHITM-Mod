@@ -1888,25 +1888,23 @@ SMODS.Joker{
       'not contain a {C:attention}Straight{}'
     }
   },
- 
+
   atlas = 'schrepper',
   config = {
     extra = {
-      var1= 1
+      var1 = 1
     }
   },
 
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1
       }
-    end,
-  pos = {x = 0, y = 0},
+    }
+  end,
 
+  pos = {x = 0, y = 0},
   soul_pos = { x = 1, y = 0 },
   rarity = 4,
   unlocked = true,
@@ -1914,7 +1912,36 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+
+  calculate = function(self, card, context)
+    if context.joker_main and context.cardarea == G.jokers and context.poker_hands then
+      local has_straight = context.poker_hands["Straight"] and next(context.poker_hands["Straight"])
+      local has_straight_flush = context.poker_hands["Straight Flush"] and next(context.poker_hands["Straight Flush"])
+
+      if not has_straight and not has_straight_flush then
+        G.E_MANAGER:add_event(Event({
+          trigger = 'after',
+          delay = 0.2,
+          func = function()
+            local types = {'Tarot', 'Planet', 'Spectral'}
+            local chosen = pseudorandom_element(types)
+            local card_to_add = create_card(chosen, G.consumeables, nil, nil, nil, true)
+            card_to_add:set_edition({negative = true}, true)
+            G.consumeables:emplace(card_to_add)
+            return true
+          end
+        }))
+
+        return {
+          message = "Schrepper schreppers",
+          colour = G.C.DARK_EDITION,
+          card = card
+        }
+      end
+    end
+  end
 }
+
 
 
 
