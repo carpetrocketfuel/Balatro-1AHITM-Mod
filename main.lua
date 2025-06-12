@@ -771,25 +771,24 @@ SMODS.Joker{
   loc_txt = {
     name = 'Earfquake',
     text = {
-      '???'
+      'If a played hand contains at least two scoring{C:attention}Jacks{}',
+      'and one scoring{C:attention}Queen{},',
+      'create a {C:dark_edition}Negative{} {C:tarot}Tarot{} card'
     }
   },
   atlas = 'igor',
   config = {
     extra = {
-      var1= 1
+      var1 = 1
     }
   },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1
       }
-    end,
+    }
+  end,
   pos = {x = 0, y = 0},
   rarity = 1,
   unlocked = true,
@@ -797,7 +796,41 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+
+  calculate = function(self, card, context)
+    if context.joker_main and context.cardarea == G.jokers and context.scoring_hand then
+      local jack_count, queen_count = 0, 0
+
+      for _, c in ipairs(context.scoring_hand) do
+        if c:get_id() == 11 then jack_count = jack_count + 1 end
+        if c:get_id() == 12 then queen_count = queen_count + 1 end
+      end
+
+      if jack_count >= 2 and queen_count >= 1 then
+        G.E_MANAGER:add_event(Event({
+          trigger = 'after',
+          delay = 0.2,
+          func = function()
+            local card_to_add = create_card('Tarot', G.consumeables, nil, nil, nil, true)
+            card_to_add:set_edition({negative = true}, true)
+            G.consumeables:emplace(card_to_add)
+            return true
+          end
+        }))
+
+        return {
+          message = "I think I've fallen in Looooove!",
+          colour = G.C.TAROT,
+          card = card
+        }
+      end
+    end
+  end
 }
+
+
+
+
 
 --hockey
 SMODS.Atlas{
