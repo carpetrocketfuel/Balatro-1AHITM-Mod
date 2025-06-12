@@ -1654,29 +1654,23 @@ SMODS.Joker{
     name = 'Hisoka',
     text = {
       'Every played {C:attention}card{}',
-      'permanently gains',
-      '{X:mult,C:white}X#1#{} Mult when scoring'
+      'permanently gains {C:mult}+0.1X Mult{}'
     }
   },
-
   atlas = 'hisoka',
   config = {
     extra = {
-      var1= 0.1
+      mult_mod = 0.1
     }
   },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.mult_mod
       }
-    end,
+    }
+  end,
   pos = {x = 0, y = 0},
-
   soul_pos = { x = 1, y = 0 },
   rarity = 4,
   unlocked = true,
@@ -1684,15 +1678,21 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+
+  calculate = function(self, card, context)
+    if context.individual and context.cardarea == G.play then
+      context.other_card.ability.perma_mult = (context.other_card.ability.perma_mult or 0) + card.ability.extra.mult_mod
+      return {
+        extra = { message = "+0.1X", colour = G.C.MULT },
+        colour = G.C.MULT,
+        card = card
+      }
+    end
+  end
 }
 
--- payaso
-SMODS.Atlas{
-  key = 'payaso',
-  path = 'payaso.png',
-  px = 499,
-  py = 665,
-}
+
+
 
 -- payaso
 SMODS.Atlas{
@@ -1709,6 +1709,7 @@ SMODS.Joker{
     text = {
       'Gain {C:attention}+1{} hand size',
       'every {C:attention}37{} played cards.',
+      '{C:inactive}(#1# cards left)'
     }
   },
 
@@ -1719,15 +1720,26 @@ SMODS.Joker{
       cards_played_count = 0,
       hand_size_increase = 1
     }
-  }, -- ← THIS COMMA WAS MISSING
+  },
+
+  loc_vars = function(self, info_queue, card)
+    local played = card.ability.extra.cards_played_count or 0
+    local remaining = 37 - played 
+    return {
+      vars = {
+        remaining
+      }
+    }
+  end,
 
   calculate = function(self, card, context)
-    if not card.debuff and context.cardarea == G.play then
-      self.config.extra.cards_played_count = (self.config.extra.cards_played_count or 0) + 1
+    if context.cardarea == G.play then
+      card.ability.extra.cards_played_count = (card.ability.extra.cards_played_count or 0) + 1
 
-      if self.config.extra.cards_played_count % 37 == 0 then
-        local increase = self.config.extra.hand_size_increase or 1
 
+
+      if card.ability.extra.cards_played_count % 37 == 0 then
+        local increase = card.ability.extra.hand_size_increase or 1
         G.hand:change_size(increase)
 
         return {
@@ -1740,7 +1752,7 @@ SMODS.Joker{
   end,
 
   pos = {x = 0, y = 0},
-  soul_pos = { x = 1, y = 0 },
+  soul_pos = {x = 1, y = 0},
   rarity = 4,
   unlocked = true,
   cost = 20,
@@ -1748,6 +1760,7 @@ SMODS.Joker{
   blueprint_compat = false,
   eternal_compat = true,
 }
+
 
 
 
