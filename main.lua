@@ -1668,7 +1668,7 @@ SMODS.Joker{
     name = 'Hisoka',
     text = {
       'Every played {C:attention}card{}',
-      'permanently gains {C:mult}+0.1X Mult{}'
+      'permanently gains {X:mult,C:white}+0.1X{} Mult'
     }
   },
   atlas = 'hisoka',
