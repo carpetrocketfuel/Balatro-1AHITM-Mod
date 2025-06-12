@@ -1615,30 +1615,44 @@ SMODS.Joker{
   atlas = 'crimson',
   config = {
     extra = {
-      var1= 1
+      var1 = 1
     }
   },
 
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1
       }
-    end,
-  pos = {x = 0, y = 0},
+    }
+  end,
 
+  pos = {x = 0, y = 0},
   soul_pos = { x = 1, y = 0 },
   rarity = 4,
   unlocked = true,
   cost = 20,
   discovered = true,
   blueprint_compat = false,
-  eternal_compat = true
+  eternal_compat = true,
+
+  calculate = function(self, card, context)
+  if context.skip_blind then
+    G.STATE = G.STATES.ROUND_EVAL
+    G.STATE_COMPLETE = false
+    G.GAME.skip_money = false
+    G.GAME.current_round.skipped = false
+
+    return {
+      message = "Time Erased",
+      colour = G.C.RED,
+      card = card
+    }
+  end
+end
 
 }
+
 
 --Hisoka
 SMODS.Atlas{
