@@ -1668,15 +1668,17 @@ SMODS.Joker{
     name = 'Hisoka',
     text = {
       'Every played {C:attention}card{}',
-      'permanently gains {C:mult}+0.1X Mult{}'
+      'gains {X:mult,C:white}+0.1X Mult{} permanently'
     }
   },
+
   atlas = 'hisoka',
   config = {
     extra = {
       mult_mod = 0.1
     }
   },
+
   loc_vars = function(self, info_queue, card)
     return {
       vars = {
@@ -1684,6 +1686,7 @@ SMODS.Joker{
       }
     }
   end,
+
   pos = {x = 0, y = 0},
   soul_pos = { x = 1, y = 0 },
   rarity = 4,
@@ -1694,16 +1697,27 @@ SMODS.Joker{
   eternal_compat = true,
 
   calculate = function(self, card, context)
-    if context.individual and context.cardarea == G.play then
-      context.other_card.ability.perma_mult = (context.other_card.ability.perma_mult or 0) + card.ability.extra.mult_mod
+    if context.individual and context.cardarea == G.play and context.other_card then
+      local c = context.other_card
+      -- Stack permanent multiplier on the card itself
+      c.ability.perma_x_mult = (c.ability.perma_x_mult or 1) + card.ability.extra.mult_mod
+
       return {
-        extra = { message = "+0.1X", colour = G.C.MULT },
+        extra = { message = string.format("+%.1f× Mult", c.ability.perma_x_mult), colour = G.C.MULT },
         colour = G.C.MULT,
         card = card
       }
+    elseif context.other_card and context.cardarea == G.play then
+      local c = context.other_card
+      if c.ability.perma_x_mult and c.ability.perma_x_mult > 1 then
+        return {
+          x_mult = c.ability.perma_x_mult
+        }
+      end
     end
   end
 }
+
 
 
 
