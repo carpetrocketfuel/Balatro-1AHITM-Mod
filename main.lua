@@ -771,9 +771,10 @@ SMODS.Joker{
   loc_txt = {
     name = 'Earfquake',
     text = {
-      'If a played hand contains at least two scoring{C:attention}Jacks{}',
-      'and one scoring{C:attention}Queen{},',
-      'create a {C:dark_edition}Negative{} {C:tarot}Tarot{} card'
+      'If {C:attention}played hand{} contains',
+      'at least two scoring {C:attention}Jacks{}',
+      'and a scoring {C:attention}Queen{}',
+      'create a {C:dark_edition}Spectral{} card'
     }
   },
   atlas = 'igor',
@@ -883,176 +884,7 @@ SMODS.Joker{
   end 
 }
 
---escchips
-SMODS.Atlas{
-  key = 'escchips',
-  path = 'escchips.png',
-  px = 71,
-  py = 95,
-}
-SMODS.Joker{
-  key = 'escchips',
-  loc_txt = {
-    name = 'Escapist of Wits',
-    text = {
-      '{C:chips}+#1#{} Chips if played',
-      'hand contains no ',
-      'scoring {C:attention}face cards{}'
-    }
-  },
-  atlas = 'escchips',
-  config = {
-    extra = {
-      var1= 60
-    }
-  },
 
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-  rarity = 1,
-  unlocked = true,
-  cost = 4,
-  discovered = true,
-  blueprint_compat = true,
-  eternal_compat = true,
-  calculate = function(self, card, context)
-      if context.joker_main and context.cardarea == G.jokers then
-    local faces = false
-    -- Checks if played hand contains a face card
-    for i = 1, #context.scoring_hand do
-      if context.scoring_hand[i]:is_face() then faces = true end
-    end
-
-        if not faces then
-          return {
-          chips = card.ability.extra.var1
-          }
-        end
-      end
-  end
-}
-
---escmult
-SMODS.Atlas{
-  key = 'escmult',
-  path = 'escmult.png',
-  px = 71,
-  py = 95,
-}
-SMODS.Joker{
-  key = 'escmult',
-  loc_txt = {
-    name = 'Escapist of Strenght',
-    text = {
-      '{C:mult}+#1#{} Mult if played',
-      'hand contains no',
-      'scoring {C:attention}face cards{}'
-    }
-  },
-  atlas = 'escmult',
-  config = {
-    extra = {
-      var1= 12
-    }
-  },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-  rarity = 1,
-  unlocked = true,
-  cost = 4,
-  discovered = true,
-  blueprint_compat = true,
-  eternal_compat = true,
-    calculate = function(self, card, context)
-      if context.joker_main and context.cardarea == G.jokers then
-    local faces = false
-    -- Checks if played hand contains a face card
-    for i = 1, #context.scoring_hand do
-      if context.scoring_hand[i]:is_face() then faces = true end
-    end
-
-        if not faces then
-          return {
-          mult = card.ability.extra.var1
-          }
-        end
-      end
-  end
-}
-
---escmoney
-SMODS.Atlas{
-  key = 'escmoney',
-  path = 'escmoney.png',
-  px = 71,
-  py = 95,
-}
-SMODS.Joker{
-  key = 'escmoney',
-  loc_txt = {
-    name = 'Escapist of Fortune',
-    text = {
-      'earn {C:money}$#1#{} if played',
-      'hand contains no',
-      'scoring {C:attention}face cards{}'
-    }
-  },
-  atlas = 'escmoney',
-  config = {
-    extra = {
-      var1= 5
-    }
-  },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-  rarity = 1,
-  unlocked = true,
-  cost = 4,
-  discovered = true,
-  blueprint_compat = true,
-  eternal_compat = true,
-    calculate = function(self, card, context)
-      if context.joker_main and context.cardarea == G.jokers then
-    local faces = false
-    -- Checks if played hand contains a face card
-    for i = 1, #context.scoring_hand do
-      if context.scoring_hand[i]:is_face() then faces = true end
-    end
-
-        if not faces then
-          return {
-          dollars = card.ability.extra.var1
-          }
-        end
-      end
-  end
-}
 
 --klepto
 SMODS.Atlas{
@@ -1097,56 +929,6 @@ SMODS.Joker{
   eternal_compat = true,
 }
 
---Paint the Town
-SMODS.Atlas{
-  key = 'blue',
-  path = 'blue.png',
-  px = 71,
-  py = 95,
-}
-SMODS.Joker{
-  key = 'blue',
-  loc_txt = {
-    name = 'Paint The Town',
-    text = {
-      'All played',
-      '{C:attention}face cards{}',
-      'gain a {C:dark_edition}Foil{}'
-
-    }
-  },
-  atlas = 'blue',
-  config = {
-    extra = {
-      var1= 1
-    }
-  },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-  rarity = 2,
-  unlocked = true,
-  cost = 6,
-  discovered = true,
-  blueprint_compat = false,
-  eternal_compat = true,
-  calculate = function(self, card, context)
-  if context.individual and context.cardarea == G.play and context.other_card then
-    local c = context.other_card
-    if c:is_face() then
-      c:set_edition('e_foil', true)
-    end
-  end
-end
-}
 
 
 --filthy
@@ -1557,7 +1339,6 @@ SMODS.Joker{
   atlas = 'bomb',
   config = {
     extra = {
-      var1 = 1,
       var2 = 7,
       mult = 30
     }
@@ -1566,7 +1347,7 @@ SMODS.Joker{
   loc_vars = function(self, info_queue, card)
     return {
       vars = {
-        card.ability.extra.var1,
+        G.GAME.probabilities.normal,
         card.ability.extra.var2,
         card.ability.extra.mult
       }
@@ -1580,7 +1361,51 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
-
+    calculate = function(self, card, context)
+    -- Apply x_mult during play if this Joker is being used
+    if context.joker_main and context.cardarea == G.jokers then
+      return {
+        mult = card.ability.extra.mult
+      }
+    end
+  
+    -- At end of round, chance to destroy this Joker and spawn 'ye'
+    if context.end_of_round and not (context.blueprint) and context.main_eval then
+      local chance = G.GAME.probabilities.normal / card.ability.extra.var2
+  
+      if pseudorandom("Time Bomb") < chance then
+      local other_joker
+      local other_joker2
+      for i, v in ipairs(G.jokers.cards) do
+        if v == card then
+          other_joker = G.jokers.cards[i + 1]
+          other_joker2 = G.jokers.cards[i - 1]
+          break
+        end
+      end
+        destroy_joker(card)
+        if other_joker then
+        destroy_joker(other_joker)
+        end
+        if other_joker2 then
+        destroy_joker(other_joker2)  
+        end
+        return {
+          message = 'BOOM!',
+          colour = G.C.MULT,
+          card = card
+        }
+      else
+        return {
+          message = 'Safe!',
+          colour = G.C.CHIPS,
+          card = card
+        }
+      end
+    end
+  
+    return nil  -- Explicit fallback to avoid accidental behavior
+  end
 }
 
 --curveball
@@ -1701,7 +1526,8 @@ SMODS.Joker{
     name = 'Hisoka',
     text = {
       'Every played {C:attention}card{}',
-      'gains {X:mult,C:white}+0.1X Mult{} permanently'
+      'permanently gains',
+      '{X:mult,C:white}0.1X{} Mult'
     }
   },
 
@@ -1736,7 +1562,7 @@ SMODS.Joker{
       c.ability.perma_x_mult = (c.ability.perma_x_mult or 1) + card.ability.extra.mult_mod
 
       return {
-        extra = { message = string.format("+%.1f× Mult", c.ability.perma_x_mult), colour = G.C.MULT },
+        extra = { message = string.format("%.1fX Mult", c.ability.perma_x_mult), colour = G.C.MULT },
         colour = G.C.MULT,
         card = card
       }
@@ -1883,7 +1709,7 @@ SMODS.Joker{
   loc_txt = {
     name = 'Schrepper',
     text = {
-      'Create a {C:dark_edition}Negative{} consumable',
+      'Create a {C:dark_edition}polychrome{} consumable',
       'if played hand does',
       'not contain a {C:attention}Straight{}'
     }
@@ -1926,14 +1752,14 @@ SMODS.Joker{
             local types = {'Tarot', 'Planet', 'Spectral'}
             local chosen = pseudorandom_element(types)
             local card_to_add = create_card(chosen, G.consumeables, nil, nil, nil, true)
-            card_to_add:set_edition({negative = true}, true)
+            card_to_add:set_edition('e_polychrome', true)
             G.consumeables:emplace(card_to_add)
             return true
           end
         }))
 
         return {
-          message = "Schrepper schreppers",
+          message = "Create!",
           colour = G.C.DARK_EDITION,
           card = card
         }
