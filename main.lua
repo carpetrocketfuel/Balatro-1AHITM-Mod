@@ -1,7 +1,7 @@
 --- STEAMODDED HEADER
 --- MOD_NAME: 1AHITM
 --- MOD_ID: EXAMPLEJOKER
---- MOD_AUTHOR: [Nikkie]
+--- MOD_AUTHOR: [Lumi]
 --- MOD_DESCRIPTION: Klassen Mod.
 --- PREFIX: xmpl
 ---------------------------------------
@@ -153,6 +153,22 @@ function poll_tag(seed, options)
   return tag
 end
 
+local function check_joker_space(card)
+	if card.config.center.set == "Joker" and card.edition and card.edition.negative then return true end
+	local c = 0
+	local un_c = G.jokers.config.card_limit
+	for i, v in ipairs(G.jokers.cards) do
+		if v.edition and v.edition.type == "negative" then
+			un_c = un_c - 1
+		elseif v.ability.eternal then
+			c = c + 1
+		else
+			break
+		end
+	end
+	return c < un_c
+end
+
 
 SMODS.Atlas{
   key = 'template',
@@ -233,59 +249,11 @@ calculate = function(self, card, context)
 end
 }
 
---fiab
-SMODS.Atlas{
-  key = 'fiab',
-  path = 'fiab.png',
-  px = 71,
-  py = 95,
-}
-
-SMODS.Joker{
-  key = 'fiab',
-  loc_txt = {
-    name = 'Caged Fish',
-    text = {
-      '{C:green}#1# in #2#{} chance for cards',
-      'to be drawn {C:attention}face down{}',
-      'gain {C:money}4${} for every',
-      '{C:attention}face down card{} played'
-    }
-  },
-  atlas = 'fiab',
-  config = {
-    extra = {
-      var1= 1,
-      var2= 4
-    }
-  },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1,
-          card.ability.extra.var2
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-  rarity = 2,
-  cost = 4,
-  unlocked = true,
-  discovered = true,
-  blueprint_compat = false,
-  eternal_compat = true,
-
-}
-
-
 
 --squirrel
 SMODS.Atlas{
   key = 'squirrel',
-  path = 'Jokers.png',
+  path = 'Jokerss.png',
   px = 71,
   py = 95,
 }
@@ -319,7 +287,7 @@ SMODS.Joker{
   blueprint_compat = false,
   eternal_compat = true,
     calculate = function(self, card, context)
-          if not context.blueprint and context.selling_card and context.card ~= card and 
+          if not context.blueprint and context.selling_card and context.card ~= card and
     context.card.ability.set == 'Joker' then
 
           local joker = context.card
@@ -485,6 +453,8 @@ SMODS.Joker{
 
 
 
+
+
 --concentrate
 SMODS.Atlas{
   key = 'concentrate',
@@ -521,7 +491,7 @@ SMODS.Joker{
   end,
 
   pos = {x = 0, y = 0},
-  rarity = 3,
+  rarity = 2,
   cost = 9,
   unlocked = true,
   discovered = true,
@@ -555,58 +525,6 @@ SMODS.Joker{
 
   end
 }
-
-
--- Adachi 
-SMODS.Atlas{
-  key = 'adachi',
-  path = 'adachi.png',
-  px = 71,
-  py = 95,
-}
-
-SMODS.Joker{
-  key = 'adachi',
-  loc_txt = {
-    name = 'Toru Adachi',
-    text = {
-      '{C:attention}+3 Joker Slots{}',
-      'Removes all other {C:rare}Rare{}',
-      'Jokers from appearing'
-    }
-  },
-  atlas = 'adachi',
-  config = {
-    extra = {
-      slots = 3
-    }
-  },
-
-  pos = {x = 0, y = 0},
-  rarity = 3,
-  unlocked = true,
-  cost = 4,
-  discovered = true,
-  blueprint_compat = false,
-  eternal_compat = true,
-
-  add_to_deck = function(self, card, from_debuff)
-    G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
-  end,
-
-  remove_from_deck = function(self, card, from_debuff)
-    G.jokers.config.card_limit = G.jokers.config.card_limit - card.ability.extra.slots
-  end,
-
-  calculate = function(self, card)
-    for k, v in pairs(G.P_CENTERS) do
-      if v.set == 'Joker' and (v.rarity == 3 or (v.tags and v.tags.Rare)) and v.key ~= self.key then
-        v.banned = true
-      end
-    end
-  end
-}
-
 
 
 --d4c
@@ -757,6 +675,89 @@ SMODS.Joker{
 end
 }
 
+--fiab
+SMODS.Atlas{
+  key = 'fiab',
+  path = 'fiab.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'fiab',
+  loc_txt = {
+    name = 'Caged Fish',
+    text = {
+      'This Joker gains {X:mult,C:white}X#1#{}',
+      'when {C:attention}Skipping a Blind{}',
+      'The Mult on this decreases by',
+      '{X:mult,C:white}X#2#{} at the {C:attention}end of round{}',
+      '{C:inactive}(Currently:{} {X:mult,C:white}X#3#{}{C:inactive}){}'
+
+    }
+  },
+  atlas = 'fiab',
+  config = {
+    extra = {
+      var1 = 4,
+      var2 = 1,
+      mult = 4
+    }
+  },
+
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1,
+        card.ability.extra.var2,
+        card.ability.extra.mult
+      }
+    }
+  end,
+
+  pos = {x = 0, y = 0},
+  rarity = 2,
+  unlocked = true,
+  cost = 8,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+
+  calculate = function(self, card, context)
+    if context.joker_main and context.cardarea == G.jokers then
+      return {
+        x_mult = card.ability.extra.mult
+      }
+    end
+    if not context.blueprint and context.end_of_round and context.main_eval and card.area == G.jokers then
+        card.ability.extra.mult = card.ability.extra.mult - 1
+
+    if card.ability.extra.mult <= 1 then
+        destroy_joker(card)
+        return {
+          message = 'Yikes!',
+          colour = G.C.MULT,
+          card = card
+        }
+      else
+        return {
+          message = '-1!',
+          colour = G.C.MULT,
+          card = card
+        }
+      end
+    end
+    if context.skip_blind then
+        card.ability.extra.mult = card.ability.extra.var1 
+      return {
+          message = '+4!',
+          colour = G.C.MULT,
+          card = card
+      }
+    end
+  end
+
+}
+
 
 
 --igor
@@ -769,7 +770,7 @@ SMODS.Atlas{
 SMODS.Joker{
   key = 'igor',
   loc_txt = {
-    name = 'Earfquake',
+    name = 'IGOR',
     text = {
       'If {C:attention}played hand{} contains',
       'at least two scoring {C:attention}Jacks{}',
@@ -791,42 +792,50 @@ SMODS.Joker{
     }
   end,
   pos = {x = 0, y = 0},
-  rarity = 1,
+  rarity = 2,
   unlocked = true,
   cost = 4,
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
 
-  calculate = function(self, card, context)
+
+
+calculate = function(self, card, context)
     if context.joker_main and context.cardarea == G.jokers and context.scoring_hand then
-      local jack_count, queen_count = 0, 0
+        local jack_count, queen_count = 0, 0
 
-      for _, c in ipairs(context.scoring_hand) do
-        if c:get_id() == 11 then jack_count = jack_count + 1 end
-        if c:get_id() == 12 then queen_count = queen_count + 1 end
-      end
+        for _, c in ipairs(context.scoring_hand) do
+            if c:get_id() == 11 then jack_count = jack_count + 1 end
+            if c:get_id() == 12 then queen_count = queen_count + 1 end
+        end
 
-      if jack_count >= 2 and queen_count >= 1 then
-        G.E_MANAGER:add_event(Event({
-          trigger = 'after',
-          delay = 0.2,
-          func = function()
-            local card_to_add = create_card('Tarot', G.consumeables, nil, nil, nil, true)
-            card_to_add:set_edition({negative = true}, true)
-            G.consumeables:emplace(card_to_add)
-            return true
+        if jack_count >= 2 and queen_count >= 1 then
+            
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.2,
+                func = function()
+
+                    --  CHECK LIMIT AT THE MOMENT OF CREATION
+                    if #G.consumeables.cards < G.consumeables.config.card_limit then
+                        local card_to_add = create_card('Spectral', G.consumeables, nil, nil, nil, true)
+                        G.consumeables:emplace(card_to_add)
+                    end
+
+                    return true
+                end
+            }))
+              if #G.consumeables.cards < G.consumeables.config.card_limit then
+            return {
+                message = "I think I've fallen in Looooove!",
+                colour = G.C.TAROT,
+                card = card
+            }
           end
-        }))
-
-        return {
-          message = "I think I've fallen in Looooove!",
-          colour = G.C.TAROT,
-          card = card
-        }
-      end
+        end
     end
-  end
+end
 }
 
 
@@ -886,48 +895,7 @@ SMODS.Joker{
 
 
 
---klepto
-SMODS.Atlas{
-  key = 'klepto',
-  path = 'kleptomancy.png',
-  px = 568,
-  py = 760,
-}
-SMODS.Joker{
-  key = 'klepto',
-  loc_txt = {
-    name = 'Kleptomancy',
-    text = {
-      'Allows you take',
-      '{C:attention}one {}additional card',
-      'in every {C:attention}Booster Pack{}'
 
-    }
-  },
-  atlas = 'klepto',
-  config = {
-    extra = {
-      var1= 1
-    }
-  },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-  rarity = 3,
-  unlocked = true,
-  cost = 10,
-  discovered = true,
-  blueprint_compat = false,
-  eternal_compat = true,
-}
 
 
 
@@ -1408,50 +1376,48 @@ SMODS.Joker{
   end
 }
 
---curveball
+-- Adachi 
 SMODS.Atlas{
-  key = 'curveball',
-  path = 'curveball.png',
+  key = 'adachi',
+  path = 'adachi.png',
   px = 71,
   py = 95,
 }
 SMODS.Joker{
-  key = 'curveball',
+  key = 'adachi',
   loc_txt = {
-    name = 'Curveball',
+    name = 'Toru Adachi',
     text = {
-      'Every Hand is',
-      'considered a {C:attention}Flush{}'
+      '{C:attention}+2 Joker Slots{}'
     }
   },
-  atlas = 'curveball',
+  atlas = 'adachi',
   config = {
     extra = {
-      var1 = 1,
-      var2 = 7,
-      mult = 30
+      slots = 2
     }
   },
 
-  loc_vars = function(self, info_queue, card)
-    return {
-      vars = {
-        card.ability.extra.var1,
-        card.ability.extra.var2,
-        card.ability.extra.mult
-      }
-    }
-  end,
-
   pos = {x = 0, y = 0},
-  rarity = 1,
+  rarity = 3,
   unlocked = true,
-  cost = 8,
+  cost = 4,
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
 
+  add_to_deck = function(self, card, from_debuff)
+    G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
+  end,
+
+  remove_from_deck = function(self, card, from_debuff)
+    G.jokers.config.card_limit = G.jokers.config.card_limit - card.ability.extra.slots
+  end,
+
+
 }
+
+
 
 --King Crimson
 SMODS.Atlas{
@@ -1508,7 +1474,6 @@ SMODS.Joker{
     }
   end
 end
-
 }
 
 
@@ -1588,15 +1553,14 @@ SMODS.Atlas{
   px = 499,
   py = 665,
 }
-
 SMODS.Joker{
   key = 'payaso',
   loc_txt = {
     name = 'Payaso',
     text = {
-      'Gain {C:attention}+1{} hand size',
-      'every {C:attention}37{} played cards.',
-      '{C:inactive}(#1# cards left)'
+      'Gain {C:attention}+#2#{} hand size',
+      'every {C:attention}#1#{} cards played.',
+      '{C:inactive}(#3# cards left)'
     }
   },
 
@@ -1604,37 +1568,48 @@ SMODS.Joker{
 
   config = {
     extra = {
-      cards_played_count = 0,
-      hand_size_increase = 1
+      cards_played_count = 37,
+      hand_size_increase = 1,
+      cards_togo = 37,
+      handsize_gained = 0
     }
   },
 
-  loc_vars = function(self, info_queue, card)
-    local played = card.ability.extra.cards_played_count or 0
-    local remaining = 37 - played 
+   loc_vars = function(self, info_queue, card)
     return {
       vars = {
-        remaining
+        card.ability.extra.cards_played_count,
+        card.ability.extra.hand_size_increase,
+        card.ability.extra.cards_togo,
+        card.ability.extra.handsize_gained
       }
     }
   end,
 
   calculate = function(self, card, context)
-    if context.cardarea == G.play then
-      card.ability.extra.cards_played_count = (card.ability.extra.cards_played_count or 0) + 1
+  if not context.blueprint and context.individual and context.cardarea == G.play then
+    card.ability.extra.cards_togo = card.ability.extra.cards_togo - 1
 
-
-
-      if card.ability.extra.cards_played_count % 37 == 0 then
+    if card.ability.extra.cards_togo == 0 then
         local increase = card.ability.extra.hand_size_increase or 1
         G.hand:change_size(increase)
-
+        card.ability.extra.handsize_gained = card.ability.extra.handsize_gained + 1
+        card.ability.extra.cards_togo = 37
         return {
           message = "Hand size increased!",
           colour = G.C.CHIPS,
           card = card
         }
       end
+    end
+    if not context.blueprint and context.selling_card and context.card ~= card then
+      local remove = (card.ability.extra.handsize_gained)
+      G.hand:change_size(remove)
+          return {
+          message = "Hand size increased!",
+          colour = G.C.CHIPS,
+          card = card
+        }
     end
   end,
 
@@ -1647,53 +1622,6 @@ SMODS.Joker{
   blueprint_compat = false,
   eternal_compat = true,
 }
-
-
-
-
---taitai
-SMODS.Atlas{
-  key = 'taitai',
-  path = 'taitai.png',
-  px = 499,
-  py = 665,
-}
-SMODS.Joker{
-  key = 'taitai',
-  loc_txt = {
-    name = 'Taitai',
-    text = {
-      '???'
-    }
-  },
- 
-  atlas = 'taitai',
-  config = {
-    extra = {
-      var1= 1
-    }
-  },
-
-
-
-    loc_vars = function(self, info_queue, card)
-      return {
-        vars = {
-          card.ability.extra.var1
-        }
-      }
-    end,
-  pos = {x = 0, y = 0},
-
-  soul_pos = { x = 1, y = 0 },
-  rarity = 4,
-  unlocked = true,
-  cost = 20,
-  discovered = true,
-  blueprint_compat = false,
-  eternal_compat = true,
-}
-
 
 
 --Schrepper
@@ -1711,7 +1639,8 @@ SMODS.Joker{
     text = {
       'Create a {C:dark_edition}polychrome{} consumable',
       'if played hand does',
-      'not contain a {C:attention}Straight{}'
+      'not contain a {C:attention}Straight{}',
+      '{C:inactive}(Must not have Room){}'
     }
   },
 
