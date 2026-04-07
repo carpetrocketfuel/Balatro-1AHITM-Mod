@@ -3,7 +3,7 @@
 --- MOD_ID: EXAMPLEJOKER
 --- MOD_AUTHOR: [Lumi]
 --- MOD_DESCRIPTION: Klassen Mod.
---- PREFIX: xmpl
+--- PREFIX: hcrf
 ---------------------------------------
 ------------MOD CODE ------------------
 
@@ -70,7 +70,10 @@ local BackApply_to_run_ref = Back.apply_to_run
 function Back.apply_to_run(arg_56_0)
   BackApply_to_run_ref(arg_56_0)
   G.GAME.pool_flags.ahitm_filthy_can_spawn = false
+    G.GAME.pool_flags.ahitm_beta_can_spawn = false
+  G.GAME.pool_flags.ahitm_omega_can_spawn = false
   G.GAME.pool_flags.ahitm_d4c_can_spawn = true
+  G.GAME.pool_flags.ahitm_ye_can_spawn = false
 end
 
 --- Tries to spawn a card into either the Jokers or Consumeable card areas, ensuring
@@ -215,9 +218,9 @@ SMODS.Joker{
   cost = 4,
   unlocked = true,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
-calculate = function(self, card, context)
+  calculate = function(self, card, context)
   -- Trigger reward at end of round
   if context.end_of_round and context.main_eval then
     add_tag(poll_tag("monster"))
@@ -389,7 +392,7 @@ SMODS.Joker{
   unlocked = true,
   discovered = true,
   cost = 6,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
  calculate = function(self, card, context)
     if context.cardarea == G.play and context.repetition then
@@ -400,7 +403,6 @@ SMODS.Joker{
       end
     end
 end
-
 }
 
 --artisan
@@ -415,8 +417,8 @@ SMODS.Joker{
   loc_txt = {
     name = 'Artisan',
     text = {
-      'Retrigger {C:attention}#1#{} two',
-      'additional times'
+      'Retrigger played {C:attention}#1#{}',
+      'two additional times'
     }
   },
   atlas = 'artisan',
@@ -436,7 +438,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 9,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
   calculate = function(self, card, context)
     if context.cardarea == G.play and context.repetition then
@@ -449,8 +451,6 @@ SMODS.Joker{
     end
   end
 }
-
-
 
 
 
@@ -495,12 +495,12 @@ SMODS.Joker{
   cost = 9,
   unlocked = true,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
 
   calculate = function(self, card, context)
     -- Trigger chip gain based on Hearts scored
-        if context.individual and context.cardarea == G.play then
+        if context.individual and not context.blueprint and context.cardarea == G.play then
     if context.individual and context.other_card then
       local c = context.other_card
 
@@ -558,7 +558,8 @@ SMODS.Joker{
       return {
         vars = {
           G.GAME.probabilities.normal,
-          card.ability.extra.var2
+          card.ability.extra.var2,
+          
         }
       }
     end,
@@ -657,7 +658,7 @@ SMODS.Joker{
   end
 
   -- Trigger reward at end of round if boss blind and housecheck is true
-  if context.end_of_round and context.main_eval and G.GAME.blind.boss and not context.blueprint and card.ability.housecheck and G.GAME.current_round.hands_played == 3 then
+  if context.end_of_round and context.main_eval and G.GAME.blind.boss and card.ability.housecheck and G.GAME.current_round.hands_played == 3 then
     local new_card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_rocket')
     new_card:set_edition('e_negative', true, false)
     new_card:add_to_deck()
@@ -719,7 +720,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 8,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
 
   calculate = function(self, card, context)
@@ -796,7 +797,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 4,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
 
 
@@ -895,6 +896,176 @@ SMODS.Joker{
 
 
 
+-- Alpha
+SMODS.Atlas{
+  key = 'alpha',
+  path = 'alpha.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'alpha',
+  loc_txt = {
+    name = 'Alpha',
+    text = {
+      'Turns into {C:attention}Beta{}',
+      'After skipping {C:attention}#1# Blinds{}',
+      '{C:inactive}(#2# skipped){}'
+    }
+  },
+  atlas = 'alpha',
+  config = {
+    extra = {
+      var1 = 2,
+      var2 = 0
+    }
+  },
+
+  pos = {x = 0, y = 0},
+  rarity = 1,
+  unlocked = true,
+  cost = 4,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = false,
+    loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1,
+        card.ability.extra.var2,
+      }
+    }
+  end,
+    calculate = function(self, card, context)
+
+    if context.skip_blind then
+        card.ability.extra.var2 =  card.ability.extra.var2+1
+        if card.ability.extra.var1 <= card.ability.extra.var2 then
+          destroy_joker(card, function()
+          local new_card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_hcrf_beta')
+          new_card:add_to_deck()
+          G.jokers:emplace(new_card)
+          return {
+        message = 'BETA!',
+        colour = G.C.PURPLE,
+        card = card
+      }
+    end)
+  else
+      return {
+          message = 'SKIP!',
+          colour = G.C.MULT,
+          card = card
+      }
+    end
+    end
+  end
+
+
+}
+
+-- Beta
+SMODS.Atlas{
+  key = 'beta',
+  path = 'beta.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'beta',
+  loc_txt = {
+    name = 'Beta',
+    text = {
+      'Turns into {C:attention}Omega{}',
+      'after playing a',
+      '{C:attention}Straight Flush{}'
+    }
+  },
+  atlas = 'beta',
+  config = {
+    extra = {
+      slots = 2
+    }
+  },
+
+  pos = {x = 0, y = 0},
+  rarity = 2,
+  unlocked = true,
+  cost = 6,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = false,
+  yes_pool_flag = 'ahitm_beta_can_spawn',
+
+  calculate = function(self, card, context)
+
+ if not context.blueprint and context.before and context.main_eval then
+    if context.poker_hands and next(context.poker_hands['Straight Flush']) then
+    destroy_joker(card, function()
+    local new_card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_hcrf_omega')
+    new_card:add_to_deck()
+    G.jokers:emplace(new_card)
+          return {
+        message = 'OMEGA!',
+        colour = G.C.GREEN,
+        card = card
+      }
+    end)
+  end
+  end
+
+  end
+
+}
+
+-- Omega
+SMODS.Atlas{
+  key = 'omega',
+  path = 'omega.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'omega',
+  loc_txt = {
+    name = 'Omega',
+    text = {
+      '{X:mult,C:white}X#1#{} Mult',
+    }
+  },
+  atlas = 'omega',
+  config = {
+    extra = {
+      mult = 30
+    }
+  },
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.mult
+      }
+    }
+  end,
+  pos = {x = 0, y = 0},
+  rarity = 3,
+  unlocked = true,
+  cost = 8,
+  discovered = true,
+  blueprint_compat = true,
+  eternal_compat = false,
+  yes_pool_flag = 'ahitm_omega_can_spawn',
+
+  calculate = function(self, card, context)
+    -- Apply x_mult during play if this Joker is being used
+    if context.joker_main and context.cardarea == G.jokers then
+      return {
+        x_mult = card.ability.extra.mult
+      }
+    end
+  end
+
+
+}
 
 
 
@@ -938,7 +1109,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 5,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
   yes_pool_flag = 'ahitm_filthy_can_spawn',
     calculate = function(self, card, context)
@@ -993,8 +1164,9 @@ SMODS.Joker{
   unlocked = true,
   cost = 7,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
+  perishable_compat = true,
   calculate = function(self, card, context)
 
     if context.cardarea == G.play and context.repetition then
@@ -1103,7 +1275,7 @@ SMODS.Joker{
   cost = 3,
   unlocked = true,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
   calculate = function(self, card, context)
     -- Only run if in play, not blueprint, and at end of round
@@ -1175,7 +1347,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 9,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
 
 
@@ -1218,13 +1390,13 @@ SMODS.Joker{
     text = {
       '{X:mult,C:white}X#3#{} Mult',
       '{C:green}#1# in #2#{} chance to destroy',
-      'and create an {C:attention}eternal Jimbo{}'
+      'and create an {C:attention}eternal Ye{}'
     }
   },
   atlas = 'kanye',
   config = {
     extra = {
-      var2 = 9,
+      var2 = 6,
       mult = 3
     }
   },
@@ -1262,7 +1434,7 @@ SMODS.Joker{
   
       if pseudorandom("Kanye West") < chance then
         destroy_joker(card, function()
-          local new_card = create_card('Joker', G.joker, nil, nil, nil, nil, 'j_joker')
+          local new_card = create_card('Joker', G.joker, nil, nil, nil, nil, 'j_hcrf_ye')
           new_card:set_eternal(true)
           new_card:add_to_deck()
           G.jokers:emplace(new_card)
@@ -1283,6 +1455,69 @@ SMODS.Joker{
     end
   
     return nil  -- Explicit fallback to avoid accidental behavior
+  end
+  
+}
+
+--ye
+SMODS.Atlas{
+  key = 'ye',
+  path = 'ye.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'ye',
+  loc_txt = {
+    name = 'Ye',
+    text = {
+      'Does Nothing?'
+    }
+  },
+  atlas = 'ye',
+  config = {
+    extra = {
+      var2=2
+    }
+  },
+
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        G.GAME.probabilities.normal,
+        card.ability.extra.var2,
+      }
+    }
+  end,
+
+  pos = {x = 0, y = 0},
+  rarity = 1,
+  unlocked = true,
+  cost = 8,
+  discovered = true,
+  blueprint_compat = false,
+  eternal_compat = true,
+  perishable_compat = false,
+  yes_pool_flag = 'ahitm_ye_can_spawn',
+  
+  calculate = function(self, card, context)
+    if context.end_of_round and not (context.blueprint) and context.main_eval then
+      local chance = G.GAME.probabilities.normal / card.ability.extra.var2
+    if pseudorandom("Ye") < chance then
+        return {
+          message = 'FUCK YOU!',
+          colour = G.C.MULT,
+          card = card
+        }
+      else
+        return {
+          message = 'BITCH!',
+          colour = G.C.CHIPS,
+          card = card
+        }
+      end
+    end
+
   end
   
 }
@@ -1327,7 +1562,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 8,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
     calculate = function(self, card, context)
     -- Apply x_mult during play if this Joker is being used
@@ -1376,6 +1611,7 @@ SMODS.Joker{
   end
 }
 
+
 -- Adachi 
 SMODS.Atlas{
   key = 'adachi',
@@ -1401,10 +1637,11 @@ SMODS.Joker{
   pos = {x = 0, y = 0},
   rarity = 3,
   unlocked = true,
-  cost = 4,
+  cost = 10,
   discovered = true,
   blueprint_compat = false,
   eternal_compat = true,
+  perishable_compat = true,
 
   add_to_deck = function(self, card, from_debuff)
     G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
@@ -1416,8 +1653,6 @@ SMODS.Joker{
 
 
 }
-
-
 
 --King Crimson
 SMODS.Atlas{
@@ -1517,7 +1752,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 20,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
 
   calculate = function(self, card, context)
@@ -1665,7 +1900,7 @@ SMODS.Joker{
   unlocked = true,
   cost = 20,
   discovered = true,
-  blueprint_compat = false,
+  blueprint_compat = true,
   eternal_compat = true,
 
   calculate = function(self, card, context)
