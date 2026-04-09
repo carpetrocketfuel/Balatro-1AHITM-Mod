@@ -74,6 +74,7 @@ function Back.apply_to_run(arg_56_0)
   G.GAME.pool_flags.ahitm_omega_can_spawn = false
   G.GAME.pool_flags.ahitm_d4c_can_spawn = true
   G.GAME.pool_flags.ahitm_ye_can_spawn = false
+  G.GAME.pool_flags.ahitm_alpha_can_spawn = true
 end
 
 --- Tries to spawn a card into either the Jokers or Consumeable card areas, ensuring
@@ -928,6 +929,7 @@ SMODS.Joker{
   discovered = true,
   blueprint_compat = false,
   eternal_compat = false,
+  yes_pool_flag = 'ahitm_alpha_can_spawn',
     loc_vars = function(self, info_queue, card)
     return {
       vars = {
@@ -942,6 +944,7 @@ SMODS.Joker{
         card.ability.extra.var2 =  card.ability.extra.var2+1
         if card.ability.extra.var1 <= card.ability.extra.var2 then
           destroy_joker(card, function()
+          G.GAME.pool_flags.ahitm_alpha_can_spawn = false
           local new_card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_hcrf_beta')
           new_card:add_to_deck()
           G.jokers:emplace(new_card)
@@ -1522,6 +1525,51 @@ SMODS.Joker{
   
 }
 
+--faster
+SMODS.Atlas{
+  key = 'faster',
+  path = 'faster.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'faster',
+  loc_txt = {
+    name = 'Faster',
+    text = {
+      'If you beat a Blind',
+      'on your {C:attention}First Hand{}',
+      'create a {C:attention}Speed Tag{}'
+    }
+  },
+  atlas = 'faster',
+  config = {
+    extra = {
+    }
+  },
+
+
+  pos = {x = 0, y = 0},
+  rarity = 2,
+  unlocked = true,
+  cost = 4,
+  discovered = true,
+  blueprint_compat = true,
+  eternal_compat = true,
+  perishable_compat = true,
+
+      calculate = function(self, card, context)
+  if context.end_of_round and context.main_eval and G.GAME.current_round.hands_played == 1 then
+      add_tags("tag_skip")
+      return {
+        message = 'Faster!',
+        colour = G.C.Chip,
+        card = card
+      }
+    end
+  end 
+}
+
 --time bomb
 SMODS.Atlas{
   key = 'bomb',
@@ -1654,6 +1702,89 @@ SMODS.Joker{
 
 }
 
+--Deal
+SMODS.Atlas{
+  key = 'deal',
+  path = 'deal.png',
+  px = 499,
+  py = 665,
+}
+SMODS.Joker{
+  key = 'deal',
+  loc_txt = {
+    name = 'Evil Deal',
+    text = {
+      'When a {C:attention}6{} is played',
+      '{C:attention}permanently{} gains',
+      '+{X:mult,C:white}1X{} Mult'
+    }
+  },
+
+  atlas = 'deal',
+  config = {
+    extra = {
+      var1 = 1
+    }
+  },
+
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.var1
+      }
+    }
+  end,
+
+  pos = {x = 0, y = 0},
+  soul_pos = { x = 1, y = 0 },
+  rarity = 3,
+  unlocked = true,
+  cost = 50,
+  discovered = true,
+  blueprint_compat = true,
+  eternal_compat = true,
+  perishable_compat = true,
+    config = {
+    extra = {
+      mult_mod = 1
+    }
+  },
+
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        card.ability.extra.mult_mod
+      }
+    }
+  end,
+
+
+  calculate = function(self, card, context)
+    if context.individual and context.cardarea == G.play and context.other_card then
+            local card_id = context.other_card:get_id()
+      if card_id == 6 then 
+      local c = context.other_card
+      -- Stack permanent multiplier on the card itself
+      c.ability.perma_x_mult = (c.ability.perma_x_mult or 1) + card.ability.extra.mult_mod
+
+      return {
+        extra = { message = string.format("+1X Mult", c.ability.perma_x_mult), colour = G.C.MULT },
+        colour = G.C.MULT,
+        card = card
+      }
+    elseif context.other_card and context.cardarea == G.play then
+      local c = context.other_card
+      if c.ability.perma_x_mult and c.ability.perma_x_mult > 1 then
+        return {
+          x_mult = c.ability.perma_x_mult
+        }
+      end
+      end
+    end
+  end
+}
+
+
 --King Crimson
 SMODS.Atlas{
   key = 'crimson',
@@ -1726,8 +1857,8 @@ SMODS.Joker{
     name = 'Hisoka',
     text = {
       'Every played {C:attention}card{}',
-      'permanently gains',
-      '{X:mult,C:white}0.1X{} Mult'
+      '{C:attention}permanently{} gains',
+      '+{X:mult,C:white}0.1X{} Mult'
     }
   },
 
@@ -1762,7 +1893,7 @@ SMODS.Joker{
       c.ability.perma_x_mult = (c.ability.perma_x_mult or 1) + card.ability.extra.mult_mod
 
       return {
-        extra = { message = string.format("%.1fX Mult", c.ability.perma_x_mult), colour = G.C.MULT },
+        extra = { message = string.format("+0.1X Mult", c.ability.perma_x_mult), colour = G.C.MULT },
         colour = G.C.MULT,
         card = card
       }
