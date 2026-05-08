@@ -468,10 +468,10 @@ SMODS.Joker{
   loc_txt = {
     name = 'Concentrate',
     text = {
-      'This Joker gains',
-      '{C:chips}+#1#{} chips for every',
-      'scored card',
-      '{C:inactive}(Currently {C:chips}+#2#{}{C:inactive})'
+      'All played',
+      '{C:attention}face cards{}',
+      'gain {C:dark_edition}Foil Edition{}'
+
     }
   },
   atlas = 'concentrate',
@@ -500,31 +500,19 @@ SMODS.Joker{
   eternal_compat = true,
 
   calculate = function(self, card, context)
-    -- Trigger chip gain based on Hearts scored
-        if context.individual and not context.blueprint and context.cardarea == G.play then
-    if context.individual and context.other_card then
-      local c = context.other_card
-
-        card.ability.extra.var2 = card.ability.extra.var2 + card.ability.extra.var1
-        return {
-
-          message = '+5!',
+  if context.individual and context.cardarea == G.play and context.other_card then
+    local c = context.other_card
+    if c:is_face() then
+      c:set_edition('e_foil', true)
+    
+            return {
+          message = 'GROW BACK!',
           colour = G.C.CHIPS,
           card = card
         }
-
-    end
-  end 
-
-    -- Apply the total bonus during scoring
-    if context.joker_main then
-      return {
-        chips = card.ability.extra.var2,
-        card = card
-      }
-    end
-
+     end
   end
+end
 }
 
 
@@ -676,6 +664,9 @@ SMODS.Joker{
   end
 end
 }
+
+
+
 
 --fiab
 SMODS.Atlas{
@@ -1550,7 +1541,7 @@ SMODS.Joker{
 
 
   pos = {x = 0, y = 0},
-  rarity = 2,
+  rarity = 1,
   unlocked = true,
   cost = 4,
   discovered = true,
@@ -1783,7 +1774,6 @@ SMODS.Joker{
     end
   end
 }
-
 
 --King Crimson
 SMODS.Atlas{

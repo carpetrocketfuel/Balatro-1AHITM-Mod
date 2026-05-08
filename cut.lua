@@ -220,6 +220,125 @@ SMODS.Joker{
 end
 }
 
+--Rock Bottom
+SMODS.Atlas{
+  key = 'rock',
+  path = 'rock.png',
+  px = 71,
+  py = 95,
+}
+SMODS.Joker{
+  key = 'rock',
+  loc_txt = {
+    name = 'Rock Bottom',
+    text = {
+      'When leaving your {C:attention}First Shop{} all',
+      'other Jokers gain an {C:attention}Eternal Sticker{}',
+      'When sold all Jokers',
+      'lose {C:attention}all their Stickers{}'
+    }
+  },
+  atlas = 'rock',
+  config = {
+    extra = {
+      shop2 = false,
+      sticker = "eternal"
+    }
+  },
+
+  loc_vars = function(self, info_queue, card)
+    return {
+      vars = {
+        G.GAME.probabilities.normal,
+        card.ability.extra.shop2,
+        card.ability.extra.sticker
+      }
+    }
+  end,
+
+  pos = {x = 0, y = 0},
+  rarity = 2,
+  unlocked = true,
+  cost = 4,
+  discovered = true,
+  blueprint_compat = true,
+  eternal_compat = false,
+  perishable_compat = true,
+
+calculate = function(self, card, context)
+  if context.ending_shop and context.cardarea == G.jokers and not context.blueprint and not card.ability.extra.shop2 then
+    local area = G.jokers.cards
+    local applied = false
+
+    for i = 1, #area do
+      local other = area[i]
+
+      if other ~= card and other.ability.set == 'Joker' then
+        if not other.ability[card.ability.extra.sticker] then
+          applied = true
+          card.ability.extra.shop2 = true
+
+          G.E_MANAGER:add_event(Event({
+            trigger = 'immediate',
+            func = function()
+              card:juice_up()
+              other:add_sticker(card.ability.extra.sticker, true)
+              if other.ability.perishable then 
+                other.ability.perishable = false 
+              end
+              return true
+            end
+          }))
+        end
+      end
+    end
+
+    if applied then
+      return {
+        message = 'Pause!',
+        colour = G.C.MULT,
+        card = card
+      }
+    end
+  end
+  if not context.blueprint and context.selling_card and context.card ~= card then
+    for i = 1, #G.jokers.cards do
+      local j = G.jokers.cards[i]
+
+      -- skip itself if you want
+      if j ~= card then
+        j.ability.perishable = nil
+        j.pinned = nil
+        j.ability.pinned = nil
+        j:set_rental(nil)
+
+        if not j.sob then
+          j:set_eternal(nil)
+        end
+
+        j.ability.banana = nil
+        j.ability.cry_possessed = nil
+
+        -- remove stickers (this is the important part)
+        for _, sticker_key in ipairs(SMODS.Sticker.obj_buffer) do
+          local sticker = SMODS.Stickers[sticker_key]
+          if sticker and j.ability[sticker_key] then
+            j.ability[sticker_key] = nil
+          end
+        end
+      end
+    end
+
+    return {
+      message = "Wiped!",
+      colour = G.C.RED,
+      card = card
+    }
+  end
+
+end
+}
+
 --fiab
 SMODS.Atlas{
   key = 'fiab',
