@@ -201,7 +201,7 @@ SMODS.Joker{
   atlas = 'monster',
   config = {
     extra = {
-      var1= 14
+      var1= 30
     }
   },
 
@@ -235,19 +235,14 @@ SMODS.Joker{
   if not context.blueprint and context.discard then
     card.ability.extra.var1 = card.ability.extra.var1 - 1
 
-    if card.ability.extra.var1 <= 0 then
+    if card.ability.extra.var1 == 0 then
       destroy_joker(card)
       return {
         message = 'Consumed!',
         colour = G.C.GREEN,
         card = card
       }
-    else
-      return {
-        message = 'Sip!',
-        colour = G.C.TAROT,
-        card = card
-      }
+
     end
   end
 end
